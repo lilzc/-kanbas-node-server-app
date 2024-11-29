@@ -1,41 +1,51 @@
-import db from "../Database/index.js";
+import UserModel from "./model.js";
 
-let { users } = db;
-
-export const createUser = (user) => {
-    const newUser = { 
-        ...user, 
-        _id: Date.now().toString(),
+export const createUser = async (user) => {
+    delete user._id;
+    const newUser = {
+        ...user,
         lastActivity: new Date().toISOString(),
-        totalActivity: "0:00:00"
+        totalActivity: "0:00:00",
     };
-    users.push(newUser);
-    return newUser;
+    return await UserModel.create(newUser);
 };
 
-export const findUserByUsername = (username) => {
-    return users.find((user) => user.username === username);
+
+export const findUserByUsername = async (username) => {
+    return await UserModel.findOne({ username });
 };
 
-export const findUserByCredentials = (username, password) => {
-    return users.find((user) => 
-        user.username === username && user.password === password
-    );
+export const findUserByCredentials = async (username, password) => {
+    return await UserModel.findOne({ username, password });
 };
 
-export const findAllUsers = () => users;
-
-export const findUserById = (userId) => {
-    return users.find((user) => user._id === userId);
+export const findAllUsers = async () => {
+    return await UserModel.find();
 };
 
-export const updateUser = (userId, user) => {
-    users = users.map((u) => 
-        u._id === userId ? { ...u, ...user } : u
-    );
-    return findUserById(userId);
+export const findUserById = async (userId) => {
+    return await UserModel.findById(userId);
 };
 
-export const deleteUser = (userId) => {
-    users = users.filter((user) => user._id !== userId);
+export const updateUser = async (userId, user) => {
+    return await UserModel.updateOne({ _id: userId }, { $set: user });
 };
+
+export const deleteUser = async (userId) => {
+    return await UserModel.deleteOne({ _id: userId });
+};
+
+export const findUsersByRole = async (role) => {
+    return await UserModel.find({ role });
+};
+
+
+export const findUsersByPartialName = (partialName) => {
+    const regex = new RegExp(partialName, "i"); 
+    return model.find({
+      $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }],
+    });
+  };
+
+  
+  

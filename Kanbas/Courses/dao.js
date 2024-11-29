@@ -1,36 +1,34 @@
-import Database from "../Database/index.js";
+import mongoose from "mongoose";
+import model from "./model.js";
 
-export function findAllCourses() {
-  return Database.courses;
-}
+export const findAllCourses = () => model.find();
 
-export function findCoursesForEnrolledUser(userId) {
-  const { courses, enrollments } = Database;
-  const enrolledCourses = courses.filter((course) =>
-    enrollments.some((enrollment) => enrollment.user === userId && enrollment.course === course._id));
-  return enrolledCourses;
-}
 
-export function deleteCourse(courseId) {
-  const { courses, enrollments } = Database;
-  Database.courses = courses.filter((course) => course._id !== courseId);
-  Database.enrollments = enrollments.filter(
-    (enrollment) => enrollment.course !== courseId
-  );
-}
+export const deleteCourse = async (courseId) => {
+  const Enrollment = mongoose.model('enrollments');
+  await Enrollment.deleteMany({ course: courseId });
+  return model.deleteOne({ _id: courseId });
+};
 
-export function updateCourse(courseId, courseUpdates) {
-  const { courses } = Database;
-  const course = courses.find((course) => course._id === courseId);
-  Object.assign(course, courseUpdates);
-  return course;
-}
+export const updateCourse = (courseId, courseUpdates) => 
+  model.updateOne({ _id: courseId }, { $set: courseUpdates });
 
-export function createCourse(course) {
-  const newCourse = { 
-    ...course, 
-    _id: new Date().getTime().toString() 
-  };
-  Database.courses.push(newCourse);
-  return newCourse;
-}
+export const createCourse = (course) => {
+  delete course._id; 
+  return model.create(course);
+};
+
+export const findCourseById = (courseId) => model.findById(courseId);
+
+export const findCoursesForEnrolledUser = async (userId) => {
+  console.log("Finding courses for user:", userId);
+  const Enrollment = mongoose.model('enrollments');
+  try {
+    const enrollments = await Enrollment.find({ user: userId }).populate('course');
+    console.log("Found enrollments:", enrollments);
+    return enrollments.map(enrollment => enrollment.course);
+  } catch (error) {
+    console.error("Error:", error);
+    throw error;
+  }
+};
