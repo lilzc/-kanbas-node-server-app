@@ -29,6 +29,11 @@
   },
   "homepage": "https://github.com/lilzc/kanbas-node-server-app#readme",
   "dependencies": {
-    "express": "^4.21.1"
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.1",
+    "express-session": "^1.17.3",
+    "mongoose": "^8.8.4"
   }
 }

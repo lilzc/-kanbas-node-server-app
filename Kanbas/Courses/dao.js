@@ -1,34 +1,30 @@
-import mongoose from "mongoose";
 import model from "./model.js";
 
-export const findAllCourses = () => model.find();
+export const findAllCourses = async () => {
+  return await model.find();
+};
 
 
 export const deleteCourse = async (courseId) => {
-  const Enrollment = mongoose.model('enrollments');
-  await Enrollment.deleteMany({ course: courseId });
-  return model.deleteOne({ _id: courseId });
+  if (!courseId) throw new Error("Course ID required");
+  return await model.findByIdAndDelete(courseId);
 };
 
-export const updateCourse = (courseId, courseUpdates) => 
-  model.updateOne({ _id: courseId }, { $set: courseUpdates });
-
-export const createCourse = (course) => {
-  delete course._id; 
-  return model.create(course);
+export const updateCourse = async (courseId, updates) => {
+  if (!courseId) throw new Error("Course ID required");
+  return await model.findByIdAndUpdate(
+    courseId, 
+    { $set: updates },
+    { new: true }
+  );
 };
 
-export const findCourseById = (courseId) => model.findById(courseId);
+export const createCourse = async (course) => {
+  delete course._id;
+  return await model.create(course);
+};
 
-export const findCoursesForEnrolledUser = async (userId) => {
-  console.log("Finding courses for user:", userId);
-  const Enrollment = mongoose.model('enrollments');
-  try {
-    const enrollments = await Enrollment.find({ user: userId }).populate('course');
-    console.log("Found enrollments:", enrollments);
-    return enrollments.map(enrollment => enrollment.course);
-  } catch (error) {
-    console.error("Error:", error);
-    throw error;
-  }
+export const findCourseById = async (courseId) => {
+  if (!courseId) throw new Error("Course ID required");
+  return await model.findById(courseId);
 };

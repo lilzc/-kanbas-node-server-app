@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const courseSchema = new mongoose.Schema({
-  _id: String, 
+    _id: { type: mongoose.Schema.Types.ObjectId, auto: true },
   name: String,
   number: String,
   startDate: String,
